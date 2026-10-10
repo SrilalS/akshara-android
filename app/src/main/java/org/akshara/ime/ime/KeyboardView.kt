@@ -230,13 +230,15 @@ class KeyboardView(
         clipChildren = false
         clipToPadding = false
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
-            val types = WindowInsetsCompat.Type.navigationBars() or
-                WindowInsetsCompat.Type.mandatorySystemGestures() or
-                WindowInsetsCompat.Type.tappableElement()
-            val system = insets.getInsetsIgnoringVisibility(types).bottom
-            val resource = navigationBarFallback()
-            val bottom = maxOf(system + dp(5), resource + dp(5), dp(KeyboardGeometry.BOTTOM_PAD_DP))
-                .coerceAtMost(dp(64))
+            // Room for the navigation bar only, as Gboard leaves. The system gesture area and the old 48dp
+            // navigation_bar_height resource (still reported by phones using gesture navigation) left a large
+            // gap under the space bar.
+            // Tappable elements cover the hide and switch buttons Android draws under keyboards on some phones
+            val navigation = insets.getInsetsIgnoringVisibility(
+                WindowInsetsCompat.Type.navigationBars() or WindowInsetsCompat.Type.tappableElement()
+            ).bottom
+            val reported = if (navigation > 0 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) navigation else navigationBarFallback()
+            val bottom = reported.coerceIn(dp(KeyboardGeometry.BOTTOM_PAD_DP), dp(64))
             val params = homePad.layoutParams as LayoutParams
             if (params.height != bottom) {
                 params.height = bottom

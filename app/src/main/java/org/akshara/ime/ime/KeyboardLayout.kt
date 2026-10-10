@@ -456,17 +456,24 @@ internal object KeyboardLayoutFactory {
 
     private fun spaceDef(width: Float, label: String) = KeyDef("space", label, " ", KeyCode.SPACE, width)
 
+    /** Gboard draws every standard action as an icon; an app's own action label stays text. */
+    private fun enterIcon(enterLabel: String) = when (enterLabel) {
+        "↵" -> org.akshara.ime.R.drawable.ic_key_enter
+        "⌕" -> org.akshara.ime.R.drawable.ic_key_search
+        "Go", "Next" -> org.akshara.ime.R.drawable.ic_key_go
+        "Send" -> org.akshara.ime.R.drawable.ic_key_send
+        "Done" -> org.akshara.ime.R.drawable.ic_key_done
+        "Previous" -> org.akshara.ime.R.drawable.ic_key_previous
+        else -> null
+    }
+
     private fun enterDef(enterLabel: String) = KeyDef(
         "enter",
-        if (enterLabel == "↵" || enterLabel == "⌕") "" else enterLabel,
+        if (enterIcon(enterLabel) != null) "" else enterLabel,
         "",
         KeyCode.ENTER,
         KeyboardGeometry.ENTER,
-        icon = when (enterLabel) {
-            "↵" -> org.akshara.ime.R.drawable.ic_key_enter
-            "⌕" -> org.akshara.ime.R.drawable.ic_key_search
-            else -> null
-        },
+        icon = enterIcon(enterLabel),
         utility = true
     )
 
