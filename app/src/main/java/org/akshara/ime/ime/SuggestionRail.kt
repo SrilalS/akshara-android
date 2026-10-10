@@ -349,6 +349,7 @@ internal class MorphLabel(context: Context, color: Int) : ViewGroup(context) {
     private var pendingText: String? = null
     private var pendingAnimated = false
     private var motionCount = 0
+    private var lastChangeAt = Long.MIN_VALUE / 2
 
     init {
         blockForceDark()
@@ -412,7 +413,10 @@ internal class MorphLabel(context: Context, color: Int) : ViewGroup(context) {
 
     private fun apply(next: String, animated: Boolean) {
         settle()
-        val canAnimate = animated &&
+        val now = android.os.SystemClock.uptimeMillis()
+        val quickSuccession = now - lastChangeAt < SuggestionMorph.QUICK_SUCCESSION_MS
+        lastChangeAt = now
+        val canAnimate = animated && !quickSuccession &&
             ValueAnimator.areAnimatorsEnabled() &&
             isAttachedToWindow &&
             width > 1
