@@ -44,7 +44,7 @@ internal object KeyboardGeometry {
     const val ICON_DP = 24f
     const val TOP_PAD_DP = 8
     const val BOTTOM_PAD_DP = 33
-    const val LETTER_RADIUS_DP = 8f
+    const val LETTER_RADIUS_DP = 7f   // Gboard's rectangular keys, measured from its screenshots
     const val SPACE_INTRO_MS = 1200L
     const val SPACE_COLLAPSE_MS = 580L
     const val SPACE_INTRO_SP = 13f
