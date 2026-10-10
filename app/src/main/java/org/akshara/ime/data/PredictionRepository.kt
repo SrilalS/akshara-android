@@ -16,7 +16,7 @@ class PredictionRepository(private val context: Context, private val learning: L
     private val unigramFrequency = HashMap<String, Int>()
     private val starts = mutableListOf<Pair<String, Int>>()
     private val trigrams = mutableMapOf<String, MutableList<Pair<String, Int>>>()
-    private var bigrams: BigramTable? = null
+    @Volatile private var bigrams: BigramTable? = null
     private var sounds: SoundLexicon? = null
 
     fun warmup() {
@@ -24,7 +24,12 @@ class PredictionRepository(private val context: Context, private val learning: L
         if (!bigramsReady) Thread({ ensureBigrams() }, "akshara-bigrams").apply { isDaemon = true; start() }
     }
 
-    @Synchronized private fun ensureLoaded() {
+    // Checked before locking: every suggestion pass calls this, and the lock is only needed for the first load
+    private fun ensureLoaded() {
+        if (!loaded) synchronized(this) { loadTables() }
+    }
+
+    private fun loadTables() {
         if (loaded) return
         readPairs(R.raw.sinhala_frequency_model).let { rows ->
             entries.addAll(rows)
@@ -38,14 +43,19 @@ class PredictionRepository(private val context: Context, private val learning: L
         loaded = true
     }
 
-    @Synchronized private fun ensureBigrams() {
-        if (bigramsReady) return
-        try {
-            bigrams = BigramTable.load(context, R.raw.sinhala_next_word_model)
-        } catch (_: Throwable) {
-            bigrams = null
+    private val bigramLock = Any()
+
+    // Its own lock: reading the 19 MB next-word table must not hold up suggestions
+    private fun ensureBigrams() {
+        synchronized(bigramLock) {
+            if (bigramsReady) return
+            try {
+                bigrams = BigramTable.load(context, R.raw.sinhala_next_word_model)
+            } catch (_: Throwable) {
+                bigrams = null
+            }
+            bigramsReady = true
         }
-        bigramsReady = true
     }
 
     /** Scores words by frequency, the user's own words, and what follows the preceding one or two words. */

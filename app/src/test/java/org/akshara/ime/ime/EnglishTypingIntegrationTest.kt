@@ -47,6 +47,8 @@ class EnglishTypingIntegrationTest {
             val view = service.onCreateInputView() as KeyboardView
             service.onStartInput(info, false)
             service.onStartInputView(info, false)
+            // As on a phone a moment after the keyboard opens: Space only corrects once the word list has loaded
+            ReflectionHelpers.getField<org.akshara.ime.data.EnglishPredictionRepository>(service, "englishPrediction").warmup()
             test(service, editor, view, actions)
         } finally { service.onFinishInputView(true); controller.destroy() }
     }
