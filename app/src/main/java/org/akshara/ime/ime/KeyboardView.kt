@@ -375,7 +375,8 @@ class KeyboardView(
                     return dispatchToPanel(event)
                 }
             }
-            MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+            MotionEvent.ACTION_MOVE, MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_POINTER_UP,
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 if (sliverPanel != null) {
                     val handled = dispatchToPanel(event)
                     if (event.actionMasked != MotionEvent.ACTION_MOVE) sliverPanel = null

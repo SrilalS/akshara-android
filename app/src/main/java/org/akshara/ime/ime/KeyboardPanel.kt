@@ -156,18 +156,53 @@ internal class KeyboardPanel(
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                downElapsed = SystemClock.elapsedRealtime()
-                pressShownElapsed = 0L
-                controller.language = LanguageScorer { actions.languageScoreForKey(it) }
-                controller.pointerDown(event.x, event.y)
+            MotionEvent.ACTION_DOWN -> press(event, 0)
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                // Fast typing lands the next finger before the previous one lifts. Type the held key now and
+                // follow the new finger, as Gboard does; otherwise the held key was lost and its press slid
+                // over to the new finger's key.
+                if (activePointer != NO_POINTER) controller.pointerUp()
+                press(event, event.actionIndex)
             }
-            MotionEvent.ACTION_MOVE -> controller.pointerMove(event.x, event.y, event.rawX)
-            MotionEvent.ACTION_UP -> controller.pointerUp()
-            MotionEvent.ACTION_CANCEL -> controller.pointerCancel()
+            MotionEvent.ACTION_MOVE -> {
+                val index = event.findPointerIndex(activePointer)
+                if (index >= 0) {
+                    val rawX = event.rawX + (event.getX(index) - event.x)   // rawX is only given for the first pointer
+                    controller.pointerMove(event.getX(index), event.getY(index), rawX)
+                }
+            }
+            MotionEvent.ACTION_POINTER_UP -> {
+                // Only the finger being followed types; earlier fingers were typed when the next one landed
+                if (event.getPointerId(event.actionIndex) == activePointer) release()
+            }
+            MotionEvent.ACTION_UP -> if (event.getPointerId(event.actionIndex) == activePointer) release()
+            MotionEvent.ACTION_CANCEL -> {
+                activePointer = NO_POINTER
+                controller.pointerCancel()
+            }
             else -> return false
         }
         return true
+    }
+
+    /** The finger whose key is pressed; others have already typed their keys. */
+    private var activePointer = NO_POINTER
+
+    private fun press(event: MotionEvent, index: Int) {
+        activePointer = event.getPointerId(index)
+        downElapsed = SystemClock.elapsedRealtime()
+        pressShownElapsed = 0L
+        controller.language = LanguageScorer { actions.languageScoreForKey(it) }
+        controller.pointerDown(event.getX(index), event.getY(index))
+    }
+
+    private fun release() {
+        activePointer = NO_POINTER
+        controller.pointerUp()
+    }
+
+    private companion object {
+        const val NO_POINTER = -1
     }
 
     override fun dispatchDraw(canvas: Canvas) {
