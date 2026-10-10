@@ -24,7 +24,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import org.akshara.ime.BuildConfig
 import org.akshara.ime.data.ClipboardHistoryStore
-import org.akshara.ime.data.EmojiRepository
 import org.akshara.ime.engine.InputMode
 import org.akshara.ime.engine.SinhalaEngine
 import org.akshara.ime.settings.EmojiButtonPlacement
@@ -88,7 +87,8 @@ class KeyboardView(
     private var clipboardPreviewLabel: String? = null
     private var clipboardPreviewIsImage = false
     private var recentEmoji = emptyList<String>()
-    private val emojiRepo = EmojiRepository(context)
+    // Shared with the service: recreating the keyboard (theme, key shape) does not parse the emoji data again
+    private val emojiRepo get() = org.akshara.ime.data.KeyboardData.of(context).emoji
     private val clipboardStore = ClipboardHistoryStore(context)
     private var emojiSearch = false
     private val searchQuery = EmojiSearchQuery()

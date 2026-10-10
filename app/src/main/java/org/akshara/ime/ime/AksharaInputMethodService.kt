@@ -50,7 +50,7 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
     private lateinit var prediction: PredictionRepository
     private lateinit var autocorrection: SinhalaAutocorrection
     private lateinit var englishPrediction: EnglishPredictionRepository
-    private lateinit var emoji: EmojiRepository
+    private val emoji: EmojiRepository get() = org.akshara.ime.data.KeyboardData.of(this).emoji
     private lateinit var clipboardHistory: ClipboardHistoryStore
     private lateinit var recentEmojiStore: RecentEmojiStore
     private lateinit var clipboardImageCache: ClipboardImageCache
@@ -94,13 +94,20 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
     private var deleteLength = 0
 
     override fun onCreate() {
-        super.onCreate(); prefs = KeyboardPreferences(this); learning = LocalLearningStore(this)
+        super.onCreate(); prefs = KeyboardPreferences(this)
+        // Shared across service restarts in the same process, so switching keyboards and back does not reload them
+        val data = org.akshara.ime.data.KeyboardData.of(this)
+        learning = data.learning
         SinhalaEngine.smartPhoneticV2 = prefs.smartPhoneticV2
         SinhalaEngine.smartPhoneticOptions = prefs.smartPhoneticOptions
-        prediction = PredictionRepository(this, learning); autocorrection = SinhalaAutocorrection(this); englishPrediction = EnglishPredictionRepository(this, learning); emoji = EmojiRepository(this); clipboardHistory = ClipboardHistoryStore(this); recentEmojiStore = RecentEmojiStore(this); clipboardImageCache = ClipboardImageCache(this)
+        prediction = data.prediction; autocorrection = data.autocorrection; englishPrediction = data.english; clipboardHistory = ClipboardHistoryStore(this); recentEmojiStore = RecentEmojiStore(this); clipboardImageCache = ClipboardImageCache(this)
         recentEmoji = recentEmojiStore.items().toMutableList()
         prefs.register(preferenceListener)
-        executor.submit { prediction.warmup(); autocorrection.warmup(); englishPrediction.warmup() }
+        executor.submit {
+            prediction.warmup(); autocorrection.warmup()
+            if (prefs.persistentEnglish) englishPrediction.warmup()
+            emoji   // parse the emoji index here rather than on the main thread when the emoji board opens
+        }
     }
     override fun onCreateInputView(): View {
         window?.window?.let { WindowCompat.setDecorFitsSystemWindows(it, false) }
@@ -322,6 +329,7 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
         latinWordActive = false
         persistentEnglish = !persistentEnglish
         prefs.persistentEnglish = persistentEnglish
+        if (persistentEnglish) executor.submit { englishPrediction.warmup() }
         keyboard.setPersistentEnglish(persistentEnglish)
         updateSuggestions()
     }
