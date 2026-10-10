@@ -72,11 +72,11 @@ internal class KeyPopups(private val context: Context) {
     }
 
     fun showPicker(key: View, values: List<Pair<String, String>>, theme: KeyboardTheme) {
-        if (!key.isShown || values.size < 2) return
+        if (!key.isShown || values.isEmpty()) return
         hidePreview()
         useTheme(theme)
         choices = values
-        selected = 1    // Gboard-style: the first extra (the key's hint) is ready on release; slide left for the base
+        selected = 0    // Gboard-style: the first extra (the key's hint) is ready on release
         itemWidth = maxOf(key.width, dp(48))
         val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -95,8 +95,8 @@ internal class KeyPopups(private val context: Context) {
         key.getLocationInWindow(loc)
         val expandsRight = loc[0] + width <= (key.rootView?.width ?: Int.MAX_VALUE) - dp(4)
         if (!expandsRight) {
-            choices = values.drop(1).reversed() + values.first()
-            selected = choices.lastIndex - 1
+            choices = values.reversed()
+            selected = choices.lastIndex
             row.removeAllViews()
             choices.forEachIndexed { index, choice ->
                 row.addView(pickerCell(choice.first, index == selected), LinearLayout.LayoutParams(itemWidth, dp(48)))
