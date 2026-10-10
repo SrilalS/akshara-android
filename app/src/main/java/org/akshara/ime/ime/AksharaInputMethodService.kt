@@ -777,6 +777,10 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
         val source = composition.source; val context = precedingWords(if (editing) word.prefix.length else 0)
         val englishActive = persistentEnglish
         val phoneticSource = source.takeIf { !editing && it.isNotEmpty() && phoneticV2Active() }
+        // Like Gboard's transliteration keyboards, offer the typed letters as an English word
+        val typedLatin = source.takeIf {
+            !editing && !englishActive && composition.active && prefs.mode != InputMode.WIJESEKARA && isLatinWord(it)
+        }
         val latinPrefix = if (englishActive) {
             if (editing) word.text else currentLatinPrefix()
         } else ""
@@ -788,11 +792,12 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
                 else if (phoneticSource != null) prediction.phoneticCandidates(phoneticSource, context, 3).toMutableList()
                 else prediction.candidates(prefix, context, 3).map { it.text }.toMutableList()
                 if (AksharaEasterEgg.isCompleteTrueName(prefix, source)) values.add(0, AksharaEasterEgg.TRUE_NAME_DISPLAY)
+                val ranked = withTypedLatin(values, typedLatin)
                 val emojiQuery = if (englishActive) latinPrefix else prefix
                 val emojiHits = if (prefs.emojiSuggestions && emojiQuery.isNotBlank()) {
                     emoji.search(emojiQuery, 2, scanNames = false)
                 } else emptyList()
-                main.post { if (token == generation) keyboard.setCandidates(values.distinct().take(3), emojiHits) }
+                main.post { if (token == generation) keyboard.setCandidates(ranked, emojiHits) }
             } catch (_: Throwable) {
                 main.post { if (token == generation) keyboard.setCandidates(emptyList()) }
             }
@@ -1079,6 +1084,19 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
                 InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
             )
         }
+        /** The typed letters of a phonetic word (no archaic markers), which can be committed as English. */
+        fun isLatinWord(source: String) = source.isNotEmpty() && source.all { it in 'a'..'z' || it in 'A'..'Z' }
+
+        /**
+         * Up to three suggestions, best first. [typedLatin] goes second, which the rail shows on the left:
+         * the best Sinhala word keeps the centre (what Space commits) and the third Sinhala word makes room.
+         */
+        fun withTypedLatin(sinhala: List<String>, typedLatin: String?): List<String> {
+            val ranked = sinhala.distinct().filter { it != typedLatin }.toMutableList()
+            if (typedLatin != null) ranked.add(minOf(1, ranked.size), typedLatin)
+            return ranked.take(3)
+        }
+
         fun isClipboardEditor(info: EditorInfo): Boolean =
             info.inputType and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_TEXT && !isSecureEditor(info)
 
