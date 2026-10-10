@@ -92,17 +92,30 @@ internal class KeyPopups(private val context: Context) {
             preview.width = hostWidth
             preview.height = hostHeight
             preview.showAtLocation(key, Gravity.NO_GRAVITY, 0, hostTop)
-        } else if (preview.width != hostWidth || preview.height != hostHeight) {
+        } else if (!previewExpanded || preview.width != hostWidth || preview.height != hostHeight) {
             preview.update(0, hostTop, hostWidth, hostHeight)
         }
+        previewExpanded = true
     }
+
+    /** Whether the preview window currently spans the keyboard, rather than idling as one pixel inside it. */
+    private var previewExpanded = false
 
     /**
      * Hides the press preview but keeps its window: adding and removing a window on every key press costs
      * milliseconds of main-thread time. [dismiss] removes it when the keyboard goes away.
      */
     fun hidePreview() {
-        if (preview.isShowing) previewLabel.visibility = View.INVISIBLE
+        if (!preview.isShowing) return
+        previewLabel.visibility = View.INVISIBLE
+        // The spanning window reaches above the keyboard, over the app. Android treats even an invisible window
+        // there as covering the app (it can block taps and warns that the keyboard is displaying over other
+        // apps), so between presses it shrinks to one pixel inside the keyboard. Its last frame is empty, so
+        // growing it again can't flash an old letter.
+        if (previewExpanded) {
+            previewExpanded = false
+            preview.update(0, 0, 1, 1)
+        }
     }
 
     fun showPicker(key: View, values: List<Pair<String, String>>, theme: KeyboardTheme) {
@@ -165,6 +178,7 @@ internal class KeyPopups(private val context: Context) {
 
     fun dismiss() {
         if (preview.isShowing) preview.dismiss()
+        previewExpanded = false
         hidePicker()
     }
 
