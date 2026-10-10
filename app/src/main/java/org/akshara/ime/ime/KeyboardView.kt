@@ -48,6 +48,8 @@ interface KeyboardActions {
     fun onHide()
     fun onCursorDelta(delta: Int)
     fun onSettings() {}
+    /** Long-press on the language key: Android's keyboard picker, as in Gboard. */
+    fun onKeyboardPicker() {}
     /** Settings opened from the clipboard board, on its Clipboard page. */
     fun onClipboardSettings() = onSettings()
     fun onClipboardOpen() {}
@@ -192,6 +194,7 @@ class KeyboardView(
             }
             override fun onSpaceLongPress() = actions.onSpaceLongPress()
             override fun onLanguageSwitch() = actions.onLanguageSwitch()
+            override fun onKeyboardPicker() = actions.onKeyboardPicker()
             override fun onSpaceSwipe(up: Boolean) {
                 if (layer == KeyboardLayer.LETTERS) actions.onSpaceSwipe(up)
             }
@@ -538,8 +541,9 @@ class KeyboardView(
 
     private fun languageSwitchLabel(): String? = when {
         editorLayout !in setOf(EditorLayout.TEXT, EditorLayout.URI) -> null
-        persistentEnglish -> "සිං"
-        else -> "EN"
+        // The language being typed, like the space bar's label in Gboard
+        persistentEnglish -> "EN"
+        else -> "සිං"
     }
 
     private fun updateRailHeight() {

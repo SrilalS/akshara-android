@@ -411,6 +411,11 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
         precedingDirty = true
         updateSuggestions()
     }
+    override fun onKeyboardPicker() {
+        commitComposition()
+        if (latinWordActive) endLatinWord()
+        (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).showInputMethodPicker()
+    }
     override fun onGlobe() { commitComposition(); if (latinWordActive) endLatinWord(); switchSystemKeyboard() }
     override fun onModeRequested(mode: InputMode) {
         commitComposition(); if (latinWordActive) endLatinWord(); prefs.mode = mode

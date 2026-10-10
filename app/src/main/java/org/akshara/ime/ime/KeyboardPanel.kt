@@ -287,6 +287,7 @@ internal class KeyboardPanel(
     override fun onBackspace(word: Boolean) = actions.onBackspace(word)
     override fun onSpace() = actions.onSpace()
     override fun onSpaceLongPress() = actions.onSpaceLongPress()
+    override fun onKeyboardPicker() = actions.onKeyboardPicker()
     override fun onEnter() = actions.onEnter()
     override fun onShift() = onShift.invoke()
     override fun onLayer(layer: KeyboardLayer) = onLayer.invoke(layer)
