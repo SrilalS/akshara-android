@@ -78,8 +78,8 @@
     <string name="clipboard_summary">Show a clipboard key on the suggestion bar. Copied text stays on this device for 1 hour. Pin clips from the keyboard to keep them.</string>
     <string name="clipboard_preview">Quick paste preview</string>
     <string name="clipboard_preview_summary">Show recently copied text or a compatible image on the suggestion bar. Disabled by default.</string>
-    <string name="space_punctuation_keys">Comma and period beside Space</string>
-    <string name="space_punctuation_keys_summary">Keep comma on the left and period on the right of the space bar</string>
+    <string name="space_punctuation_keys">Comma and period keys</string>
+    <string name="space_punctuation_keys_summary">Show comma beside ?123 and period beside the space bar</string>
     <string name="inline_autofill">Inline autofill</string>
     <string name="inline_autofill_summary">Show password-manager and form-fill suggestions in the keyboard bar</string>
     <string name="key_hints">Sinhala key hints</string>

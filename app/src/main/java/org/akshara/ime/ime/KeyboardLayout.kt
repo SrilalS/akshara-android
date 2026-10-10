@@ -366,20 +366,19 @@ internal object KeyboardLayoutFactory {
         keys += KeyDef("?123", "?123", "", KeyCode.LAYER, KeyboardGeometry.SYMBOLS, utility = true, payload = KeyboardLayer.NUMBERS.name)
         when (editor) {
             EditorLayout.EMAIL -> keys += charDef("@", "@", KeyboardGeometry.PUNCT)
-            EditorLayout.URI -> {
-                if (languageSwitchLabel != null) keys += languageSwitchDef(languageSwitchLabel)
-                keys += charDef("/", "/", KeyboardGeometry.PUNCT)
-            }
-            else -> if (languageSwitchLabel != null) keys += languageSwitchDef(languageSwitchLabel)
+            EditorLayout.URI -> keys += charDef("/", "/", KeyboardGeometry.PUNCT)
+            else -> Unit
         }
         val textLike = editor in setOf(EditorLayout.TEXT, EditorLayout.ASCII, EditorLayout.EMAIL, EditorLayout.URI)
-        if (emojiPicker) keys += KeyDef("emoji", "Emoji", "", KeyCode.EMOJI, KeyboardGeometry.PUNCT,
-            utility = true, icon = org.akshara.ime.R.drawable.ic_emoji)
         if ((spacePunctuationKeys || emojiPicker) && textLike) {
             keys += commaDef()
         } else if (editor !in setOf(EditorLayout.EMAIL, EditorLayout.URI) && languageSwitchLabel == null && ukComma) {
             keys += commaDef()
         }
+        // Punctuation sits beside ?123 like Gboard; the language key follows it, next to Space
+        if (languageSwitchLabel != null && editor != EditorLayout.EMAIL) keys += languageSwitchDef(languageSwitchLabel)
+        if (emojiPicker) keys += KeyDef("emoji", "Emoji", "", KeyCode.EMOJI, KeyboardGeometry.PUNCT,
+            utility = true, icon = org.akshara.ime.R.drawable.ic_emoji)
         val trailing = ArrayList<KeyDef>(3)
         if (textLike) {
             trailing += periodDef()
