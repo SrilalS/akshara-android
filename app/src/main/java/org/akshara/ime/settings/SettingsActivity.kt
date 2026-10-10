@@ -565,6 +565,10 @@ class SettingsActivity : ComponentActivity() {
         section(0) {
             action(R.string.notices_english_frequency_source, 0, R.drawable.ic_code, R.color.settings_icon_blue) { openUrl(R.string.link_english_frequency) }
         }
+        copy(R.string.notices_icons_title, R.string.notices_icons_body)
+        section(0) {
+            action(R.string.notices_icons_source, 0, R.drawable.ic_code, R.color.settings_icon_blue) { openUrl(R.string.link_material_symbols) }
+        }
         copy(R.string.notices_privacy_title, R.string.notices_privacy_body)
     }
 

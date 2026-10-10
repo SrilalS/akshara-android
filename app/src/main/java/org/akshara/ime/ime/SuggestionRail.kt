@@ -183,7 +183,7 @@ internal class SuggestionRail(
         clipboardPreview.text = label.orEmpty()
         clipboardPreview.contentDescription = label?.let { "Paste $it" }
         clipboardPreview.setCompoundDrawablesWithIntrinsicBounds(
-            if (image) org.akshara.ime.R.drawable.ic_doc else org.akshara.ime.R.drawable.ic_key_clipboard,
+            if (image) org.akshara.ime.R.drawable.ic_key_image else org.akshara.ime.R.drawable.ic_key_clipboard,
             0, 0, 0
         )
         clipboardPreview.compoundDrawables.filterNotNull().forEach { drawable ->

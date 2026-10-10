@@ -669,7 +669,7 @@ class KeyboardView(
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         setPadding(dp(8), 0, dp(4), 0)
-        addView(iconButton(org.akshara.ime.R.drawable.ic_nav_back, KeyRole.FUNCTION, "Letters") { closeEmoji() }.apply {
+        addView(iconButton(org.akshara.ime.R.drawable.ic_key_back, KeyRole.FUNCTION, "Letters") { closeEmoji() }.apply {
             background = emojiPill(theme.function)
             setPadding(dp(6), dp(6), dp(6), dp(6))
         }, LayoutParams(dp(34), dp(34)).apply { marginEnd = dp(8) })
@@ -701,7 +701,7 @@ class KeyboardView(
         val icons = listOf(org.akshara.ime.R.drawable.ic_emoji_recent, org.akshara.ime.R.drawable.ic_key_emoji,
             org.akshara.ime.R.drawable.ic_emoji_nature, org.akshara.ime.R.drawable.ic_emoji_food,
             org.akshara.ime.R.drawable.ic_emoji_activity, org.akshara.ime.R.drawable.ic_emoji_travel,
-            org.akshara.ime.R.drawable.ic_emoji_objects, org.akshara.ime.R.drawable.ic_heart,
+            org.akshara.ime.R.drawable.ic_emoji_objects, org.akshara.ime.R.drawable.ic_key_symbols,
             org.akshara.ime.R.drawable.ic_emoji_flags)
         val names = listOf("Recent") + emojiRepo.categories.map { it.name }
         emojiTabs.clear()
@@ -762,7 +762,7 @@ class KeyboardView(
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(8), 0, dp(8), 0)
         }
-        header.addView(iconButton(org.akshara.ime.R.drawable.ic_nav_back, KeyRole.FUNCTION, "Back to emoji") {
+        header.addView(iconButton(org.akshara.ime.R.drawable.ic_key_back, KeyRole.FUNCTION, "Back to emoji") {
             emojiSearch = false; render()
         }.apply {
             background = emojiPill(theme.function)

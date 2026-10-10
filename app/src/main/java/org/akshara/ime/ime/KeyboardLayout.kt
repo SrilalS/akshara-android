@@ -378,7 +378,7 @@ internal object KeyboardLayoutFactory {
         // Punctuation sits beside ?123 like Gboard; the language key follows it, next to Space
         if (languageSwitchLabel != null && editor != EditorLayout.EMAIL) keys += languageSwitchDef(languageSwitchLabel)
         if (emojiPicker) keys += KeyDef("emoji", "Emoji", "", KeyCode.EMOJI, KeyboardGeometry.PUNCT,
-            utility = true, icon = org.akshara.ime.R.drawable.ic_emoji)
+            utility = true, icon = org.akshara.ime.R.drawable.ic_key_emoji)
         val trailing = ArrayList<KeyDef>(3)
         if (textLike) {
             trailing += periodDef()
