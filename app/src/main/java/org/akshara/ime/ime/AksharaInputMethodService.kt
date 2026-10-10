@@ -104,6 +104,7 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
         recentEmoji = recentEmojiStore.items().toMutableList()
         prefs.register(preferenceListener)
         executor.submit {
+            learning.words()   // load learned words here, not on the main thread at the first Space
             prediction.warmup(); autocorrection.warmup()
             if (prefs.persistentEnglish) englishPrediction.warmup()
             emoji   // parse the emoji index here rather than on the main thread when the emoji board opens
@@ -163,6 +164,7 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
         super.onFinishInput()
     }
     override fun onDestroy() {
+        learning.flush()
         clearClipboardPreview()
         stopClipboardListener()
         prefs.unregister(preferenceListener)
@@ -175,6 +177,7 @@ class AksharaInputMethodService : InputMethodService(), KeyboardActions {
     }
     override fun onFinishInputView(finishingInput: Boolean) {
         inputViewActive = false
+        learning.flush()
         clearClipboardPreview()
         stopClipboardListener()
         cancelComposition(false)

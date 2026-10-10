@@ -17,7 +17,9 @@ internal class UnmarkedPreview {
         val around = ic.textAround(before.length, 0) ?: return false
         if (around.selected) return false
         if (end != null && around.cursor != null && around.cursor != end) return false
-        return around.before == before
+        // Editors may return more or less text than asked for: the end must match, and include all of our text
+        val got = around.before
+        return if (got.length >= before.length) got.endsWith(before) else got.length >= text.length && before.endsWith(got)
     }
 
     /**
