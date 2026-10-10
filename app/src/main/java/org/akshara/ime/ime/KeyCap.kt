@@ -154,7 +154,7 @@ internal class KeyCap(context: Context) : View(context) {
         mainLeft: Float = width.toFloat(), mainRight: Float = 0f
     ) {
         val sinhala = KeyTypography.isSinhala(hint)
-        hintPaint.color = ColorUtils.setAlphaComponent(theme.hint, if (prominentHint) 180 else if (sinhala) 175 else 140)
+        hintPaint.color = ColorUtils.setAlphaComponent(theme.hint, if (prominentHint) 180 else 175)
         hintPaint.typeface = KeyTypography.keyTypeface()
         hintPaint.textAlign = align
         var hintSize = KeyTypography.hintPx(resources, hint, prominentHint)
